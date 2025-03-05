@@ -1,6 +1,6 @@
-# SSL4EOS12 v1.1
+# SSL4EO-S12 v1.1
 
-SSL4EOS12 v1.1 is an updated version of the popular EO pre-training dataset [SSL4EOS12](https://github.com/zhu-xlab/SSL4EO-S12).
+SSL4EO-S12 v1.1 is an updated version of the popular EO pre-training dataset [SSL4EO-S12](https://github.com/zhu-xlab/SSL4EO-S12).
 Read more about the reasons behind our update and further improvements in our technical report on [arXiv](https://arxiv.org/abs/2503.00168).  
 
 ## Data
