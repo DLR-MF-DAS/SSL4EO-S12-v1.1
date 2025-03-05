@@ -1,0 +1,117 @@
+# lightning.pytorch==2.1.1
+seed_everything: 0
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger: true
+  callbacks:
+    - class_path: RichProgressBar
+    - class_path: LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: EarlyStopping
+      init_args:
+        monitor: val/loss
+        patience: 20
+
+  max_epochs: 100
+  check_val_every_n_epoch: 1
+  log_every_n_steps: 50
+  enable_checkpointing: true
+  default_root_dir: output/
+
+data:
+  class_path: terratorch.datamodules.GenericMultiModalDataModule
+  init_args:
+    batch_size: 1  # num zarr files (64 samples)
+    data_with_sample_dim: True
+    num_workers: 8
+    concat_bands: False  # Concatenate all modalities along the band dim and returns a tensor
+    no_data_replace: 0
+    allow_substring_file_names: False
+
+    modalities:
+      - S2L1C
+      - S2L2A
+      - S1GRD
+    rgb_modality: S2L2A
+    rgb_indices: [3, 2, 1]
+    train_data_root:
+      S2L1C: data/ssl4eo-s12/train/S2L1C/
+      S2L2A: data/ssl4eo-s12/train/S2L2A/
+      S1GRD: data/ssl4eo-s12/train/S1GRD/
+    val_data_root:
+      S2L1C: data/ssl4eo-s12/val/S2L1C/
+      S2L2A: data/ssl4eo-s12/val/S2L2A/
+      S1GRD: data/ssl4eo-s12/val/S1GRD/
+    test_data_root:  # Reuse the val split
+      S2L1C: data/ssl4eo-s12/val/S2L1C/
+      S2L2A: data/ssl4eo-s12/val/S2L2A/
+      S1GRD: data/ssl4eo-s12/val/S1GRD/
+
+    train_split: data/ssl4eo-s12/splits/ssl4eos12_train.txt
+    val_split: data/ssl4eo-s12/splits/ssl4eos12_val.txt
+    test_split: data/ssl4eo-s12/splits/ssl4eos12_val.txt
+
+    means:
+      S2L1C: [2607.345, 2393.068, 2320.225, 2373.963, 2562.536, 3110.071, 3392.832, 3321.154, 3583.77, 1838.712, 1021.753, 3205.112, 2545.798]
+      S2L2A: [1793.243, 1924.863, 2184.553, 2340.936, 2671.402, 3240.082, 3468.412, 3563.244, 3627.704, 3711.071, 3416.714, 2849.625]
+      S1GRD: [-12.577, -20.265]
+      S2RGB: [100.708, 87.489, 61.932]
+
+    stds:
+      S2L1C: [786.523, 849.702, 875.318, 1143.578, 1126.248, 1161.98, 1273.505, 1246.79, 1342.755, 576.795, 45.626, 1340.347, 1145.036]
+      S2L2A: [1160.144, 1201.092, 1219.943, 1397.225, 1400.035, 1373.136, 1429.17, 1485.025, 1447.836, 1652.703, 1471.002, 1365.307]
+      S1GRD: [5.179, 5.872]
+      S2RGB: [68.550, 47.647, 40.592]
+
+    train_transform:
+      - class_path: terratorch.datasets.transforms.FlattenSamplesIntoChannels
+      - class_path: albumentations.RandomCrop
+        init_args:
+          height: 224
+          width: 224
+      - class_path: albumentations.D4
+      - class_path: ToTensorV2
+      - class_path: terratorch.datasets.transforms.UnflattenSamplesFromChannels
+        init_args:
+          time_dim: True
+          n_timesteps: 4
+          n_samples: 64
+    val_transform:
+      - class_path: terratorch.datasets.transforms.FlattenSamplesIntoChannels
+      - class_path: albumentations.CenterCrop
+        init_args:
+          height: 224
+          width: 224
+      - class_path: ToTensorV2
+      - class_path: terratorch.datasets.transforms.UnflattenSamplesFromChannels
+        init_args:
+          time_dim: True
+          n_timesteps: 4
+          n_samples: 64
+    test_transform:
+      - class_path: terratorch.datasets.transforms.FlattenSamplesIntoChannels
+      - class_path: albumentations.CenterCrop
+        init_args:
+          height: 224
+          width: 224
+      - class_path: ToTensorV2
+      - class_path: terratorch.datasets.transforms.UnflattenSamplesFromChannels
+        init_args:
+          time_dim: True
+          n_timesteps: 4
+          n_samples: 64
+
+
+model:
+  class_path: <your pre-training task>
+  init_args:
+
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 1.e-4
