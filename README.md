@@ -123,6 +123,8 @@ wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P 
 wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/val/S2L2A/
 ```
 
+Alternatively, the data is available through [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) .
+
 ## Usage
 
 We provide code for a PyTorch dataset in [ssl4eos12_dataset.py](ssl4eos12_dataset.py). You can initialize a data loader with the following code:
