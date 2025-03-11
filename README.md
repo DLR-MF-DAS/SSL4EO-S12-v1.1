@@ -1,14 +1,14 @@
-# NEWS
+# SSL4EO-S12 v1.1
+
+SSL4EO-S12 v1.1 is an updated version of the popular EO pre-training dataset [SSL4EO-S12](https://github.com/zhu-xlab/SSL4EO-S12).
+Read more about the reasons behind our update and further improvements in our technical report on [arXiv](https://arxiv.org/abs/2503.00168).  
+
+## NEWS
 
 - Mar 11, 2025: SSL4EO-S12 v1.1 available on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1)
 - Mar 10, 2025: SSL4EO-S12 v1.1 utilized as pre-training dataset for [2025 CVPR EARTHVISION data challenge](https://www.grss-ieee.org/events/earthvision-2025/?tab=challenge):
     * details: [https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement](https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement)
     * tech support: [https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement/issues](https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement/issues)
-
-# SSL4EO-S12 v1.1
-
-SSL4EO-S12 v1.1 is an updated version of the popular EO pre-training dataset [SSL4EO-S12](https://github.com/zhu-xlab/SSL4EO-S12).
-Read more about the reasons behind our update and further improvements in our technical report on [arXiv](https://arxiv.org/abs/2503.00168).  
 
 ## Data
 
