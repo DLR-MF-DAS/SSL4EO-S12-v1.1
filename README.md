@@ -130,7 +130,32 @@ wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P 
 wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/val/S2L2A/
 ```
 
-Alternatively, the data is available through [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) .
+### HuggingFace
+
+You can also download the dataset from [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) to your local `data/` folder.
+
+#### Python API
+```python
+import huggingface_hub as hf # pip install huggingface_hub, if not installed
+
+hf.snapshot_download(
+  repo_id="embed2scale/SSL4EO-S12-v1.1", 
+  allow_patterns=["*.txt", "*.zarr.zip"], 
+  repo_type="dataset", 
+  local_dir="data/SSL4EO-S12-v1.1", 
+  local_dir_use_symlinks="auto"
+)
+```
+
+#### Git LFS
+
+1. Install `git` (see [this page](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)) and `git lfs` (see [this page](https://github.com/git-lfs/git-lfs/tree/main)).
+2. Run the following commands in a terminal from within your local folder:
+```shell
+mkdir data && cd data
+git lfs install
+git clone https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1
+```
 
 ## Usage
 
