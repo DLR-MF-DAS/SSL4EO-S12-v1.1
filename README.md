@@ -91,17 +91,49 @@ Name: 0000173_0
 
 ## Download
 
+### HuggingFace
+
+You can also download the dataset from [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) to your local `data/` folder.
+
+#### Python API
+```python
+import huggingface_hub as hf # pip install huggingface_hub, if not installed
+
+hf.snapshot_download(
+  repo_id="embed2scale/SSL4EO-S12-v1.1", 
+  allow_patterns=["*.txt", "*.zarr.zip"], 
+  repo_type="dataset", 
+  local_dir="data/SSL4EO-S12-v1.1", 
+  local_dir_use_symlinks="auto"
+)
+```
+
+#### Git LFS
+
+1. Install `git` (see [this page](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)) and `git lfs` (see [this page](https://github.com/git-lfs/git-lfs/tree/main)).
+2. Run the following commands in a terminal from within your local folder:
+```shell
+mkdir data && cd data
+git lfs install
+git clone https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1
+```
+
+### Julich DataHub
+
 You can download the data from [Julich DataHub](https://datapub.fz-juelich.de/ssl4eo-s12/) with the following script:
 
 ```shell
 # Download all data
-wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/
+wget --recursive --no-parent --reject "index.html*" --exclude-directories=ssl4eo-s12/raw --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/
 ```
 
 The script will download the data to your `data/` folder with the following format:
 ```text
 data/
 └── ssl4eo-s12
+    ├── splits
+    │   ├── ssl4eos12_train.txt
+    │   └── ssl4eos12_val.txt
     ├── train
     │   ├── S1GRD
     │   │   ├── ssl4eos12_train_seasonal_data_000001.zarr.zip
@@ -130,31 +162,10 @@ wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P 
 wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/val/S2L2A/
 ```
 
-### HuggingFace
-
-You can also download the dataset from [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) to your local `data/` folder.
-
-#### Python API
-```python
-import huggingface_hub as hf # pip install huggingface_hub, if not installed
-
-hf.snapshot_download(
-  repo_id="embed2scale/SSL4EO-S12-v1.1", 
-  allow_patterns=["*.txt", "*.zarr.zip"], 
-  repo_type="dataset", 
-  local_dir="data/SSL4EO-S12-v1.1", 
-  local_dir_use_symlinks="auto"
-)
-```
-
-#### Git LFS
-
-1. Install `git` (see [this page](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)) and `git lfs` (see [this page](https://github.com/git-lfs/git-lfs/tree/main)).
-2. Run the following commands in a terminal from within your local folder:
+If you like to access the raw tif files, you can download tar archives for each modality (~1TB per file) from [https://datapub.fz-juelich.de/ssl4eo-s12/raw/](https://datapub.fz-juelich.de/ssl4eo-s12/raw/).
 ```shell
-mkdir data && cd data
-git lfs install
-git clone https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1
+# Download raw tif files in tar archives
+wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/raw/
 ```
 
 ## Usage
