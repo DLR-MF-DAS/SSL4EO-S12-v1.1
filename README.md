@@ -84,7 +84,7 @@ time_id                                                      0
 time                                       2020-04-19 09:40:31
 tile_id                                                 T33SWC
 geometry     POLYGON ((15.655119659160581 38.06148945118448...
-crs                                                      32633
+tile_crs                                                 32633
 file               ssl4eos12_val_seasonal_data_000022.zarr.zip
 Name: 0000173_0
 ```
