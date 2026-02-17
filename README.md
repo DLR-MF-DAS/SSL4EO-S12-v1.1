@@ -1,219 +1,65 @@
+[![arXiv](https://img.shields.io/badge/arXiv-2503.00168-b31b1b?logo=arxiv)](https://arxiv.org/abs/2503.00168)
+[![HuggingFace](https://img.shields.io/badge/Hugging_Face-embed2Scale-FFD21E?logo=huggingface)](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1)
+
 # SSL4EO-S12 v1.1
 
-SSL4EO-S12 v1.1 is an updated version of the popular EO pre-training dataset [SSL4EO-S12](https://github.com/zhu-xlab/SSL4EO-S12).
+SSL4EO-S12 v1.1 is an updated multimodal version of the popular EO pre-training dataset [SSL4EO-S12](https://github.com/zhu-xlab/SSL4EO-S12).
 Read more about the reasons behind our update and further improvements in our technical report on [arXiv](https://arxiv.org/abs/2503.00168).  
 
 ## NEWS
 
-- Mar 11, 2025: SSL4EO-S12 v1.1 available on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1)
+- Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
+- Mar 11, 2025: SSL4EO-S12 v1.1 available on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
 - Mar 10, 2025: SSL4EO-S12 v1.1 utilized as pre-training dataset for [2025 CVPR EARTHVISION data challenge](https://www.grss-ieee.org/events/earthvision-2025/?tab=challenge):
     * details: [https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement](https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement)
     * tech support: [https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement/issues](https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement/issues)
 
+
 ## Data
 
-The dataset includes 246,144 locations with four timestamps each from the modalities S2L1C, S2L2A, S1GRD and S2RGB. 
-We refer to our [technical report](https://arxiv.org/abs/2503.00168) for details. 
+The dataset includes 246,144 locations with four timestamps each from the modalities S2L1C, S2L2A, S1GRD, S2RGB, NDVI, LULC, and a single timestamp DEM.
+We refer to our [technical report](https://arxiv.org/abs/2503.00168) for details.
 
-![ssl4eos12_samples.png](assets%2Fssl4eos12_samples.png)
+Sentinel-2 and Sentinel-1 time series examples with four seasonal images:
 
-The samples are stored in 3,846 Zarr Zip files (zarr version 2) that enable efficient storage and data loading. 
-The metadata is stored directly with the samples as additional data variables.
-Each Zarr files contains 64 samples (unique locations) with four timestamps each. 
-The timestamps are chunked separately, which enables efficient loading of single timestamps.
+![ssl4eos12_timeseries.png](assets/ssl4eos12_timeseries.png)
 
-You can read a Zarr file with:
-```python
-import xarray as xr
-ds = xr.open_zarr('filename.zarr.zip')  # load xarray dataset
-data = ds.bands.values  # load numpy array with dims [B, T, C, H, W]
-```
-Zarr was recently updated to version 3 which might lead to errors. You can fix easily by installing `zarr==2.18.0`.
+Modality examples in SSL4EO-S12 v1.1:
 
-Example of a S2L2A xarray dataset:
-```text
-<xarray.Dataset> Size: 446MB
-Dimensions:     (band: 12, sample: 64, time: 4, y: 264, x: 264)
-Coordinates:
-  * band        (band) <U3 144B 'B01' 'B02' 'B03' 'B04' ... 'B09' 'B11' 'B12'
-  * sample      (sample) <U7 2kB '0080717' '0060573' ... '0179869' '0012333'
-  * time        (time) int64 32B 0 1 2 3
-  * x           (x) int64 2kB 0 1 2 3 4 5 6 7 ... 257 258 259 260 261 262 263
-  * y           (y) int64 2kB 0 1 2 3 4 5 6 7 ... 257 258 259 260 261 262 263
-Data variables:
-    bands       (sample, time, band, y, x) int16 428MB 1463 1457 ... 1777 1673
-    center_lat  (sample) float64 512B 42.66 -30.64 50.47 ... 27.29 -23.06 29.99
-    center_lon  (sample) float64 512B 125.6 121.4 128.3 ... -104.8 43.64 48.18
-    cloud_mask  (sample, time, y, x) uint8 18MB 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0
-    crs         (sample) int64 512B 32651 32751 32652 ... 32613 32738 32639
-    file_id     (sample, time) <U38 39kB '20201116T023001_20201116T022955_T51...
-    sample_id   (sample, time) <U9 9kB '0080717_0' '0080717_1' ... '0012333_3'
-    time_       (sample, time) datetime64[ns] 2kB 2020-11-16T02:30:01 ... 202...
-    x_          (sample, x) float64 135kB 7.149e+05 7.149e+05 ... 2.289e+05
-    y_          (sample, y) float64 135kB 4.728e+06 4.728e+06 ... 3.319e+06
-```
-
-Example of a S1GRD xarray dataset:
-```text
-<xarray.Dataset> Size: 72MB
-Dimensions:     (band: 2, sample: 64, time: 4, y: 264, x: 264)
-Coordinates:
-  * band        (band) <U2 16B 'vv' 'vh'
-  * sample      (sample) <U7 2kB '0080717' '0060573' ... '0179869' '0012333'
-  * time        (time) int64 32B 0 1 2 3
-  * x           (x) int64 2kB 0 1 2 3 4 5 6 7 ... 257 258 259 260 261 262 263
-  * y           (y) int64 2kB 0 1 2 3 4 5 6 7 ... 257 258 259 260 261 262 263
-Data variables:
-    bands       (sample, time, band, y, x) float16 71MB -15.13 -17.44 ... -29.0
-    center_lat  (sample) float64 512B 42.66 -30.64 50.47 ... 27.29 -23.06 29.99
-    center_lon  (sample) float64 512B 125.6 121.4 128.3 ... -104.8 43.64 48.18
-    crs         (sample) int64 512B 32651 32751 32652 ... 32613 32738 32639
-    file_id     (sample, time) <U67 69kB 'S1B_IW_GRDH_1SDV_20201127T214646_20...
-    sample_id   (sample, time) <U9 9kB '0080717_0' '0080717_1' ... '0012333_3'
-    time_       (sample, time) datetime64[ns] 2kB 2020-11-27T21:46:46 ... 202...
-    x_          (sample, x) float64 135kB 7.149e+05 7.149e+05 ... 2.289e+05
-    y_          (sample, y) float64 135kB 4.728e+06 4.728e+06 ... 3.319e+06
-```
-
-We provide parquet files with some metadata based on S2 in [val_metadata.parquet](splits%2Fval_metadata.parquet) and [train_metadata.parquet](splits%2Ftrain_metadata.parquet) which you can read with geopandas.
-
-Example from the validation set: 
-```text
-sample_id                                              0000173
-time_id                                                      0
-time                                       2020-04-19 09:40:31
-tile_id                                                 T33SWC
-geometry     POLYGON ((15.655119659160581 38.06148945118448...
-tile_crs                                                 32633
-file               ssl4eos12_val_seasonal_data_000022.zarr.zip
-Name: 0000173_0
-```
+![ssl4eoS12_modalities.png](assets/ssl4eoS12_modalities.png)
 
 ## Download
 
-### HuggingFace
-
 You can also download the dataset from [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) to your local `data/` folder.
 
-#### Python API
-```python
-import huggingface_hub as hf # pip install huggingface_hub, if not installed
-
-hf.snapshot_download(
-  repo_id="embed2scale/SSL4EO-S12-v1.1", 
-  allow_patterns=["*.txt", "*.zarr.zip"], 
-  repo_type="dataset", 
-  local_dir="data/SSL4EO-S12-v1.1", 
-  local_dir_use_symlinks="auto"
-)
-```
-
-#### Git LFS
-
-1. Install `git` (see [this page](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)) and `git lfs` (see [this page](https://github.com/git-lfs/git-lfs/tree/main)).
-2. Run the following commands in a terminal from within your local folder:
-```shell
-mkdir data && cd data
-git lfs install
-git clone https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1
-```
-
-### Julich DataHub
-
-You can download the data from [Julich DataHub](https://datapub.fz-juelich.de/ssl4eo-s12/) with the following script:
+You can download the dataset with the Hugging Face CLI tool. Please note that the full dataset requires 2.3TB of storage.
 
 ```shell
-# Download all data
-wget --recursive --no-parent --reject "index.html*" --exclude-directories=ssl4eo-s12/raw --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/
+hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --local-dir data/SSL4EOS12
 ```
 
-The script will download the data to your `data/` folder with the following format:
-```text
-data/
-└── ssl4eo-s12
-    ├── splits
-    │   ├── ssl4eos12_train.txt
-    │   └── ssl4eos12_val.txt
-    ├── train
-    │   ├── S1GRD
-    │   │   ├── ssl4eos12_train_seasonal_data_000001.zarr.zip
-    │   │   ├── ssl4eos12_train_seasonal_data_000002.zarr.zip
-    │   │   ├── ...
-    │   │   └── ssl4eos12_train_seasonal_data_003812.zarr.zip
-    │   ├── S2L1C
-    │   ├── S2L2A
-    │   └── S2RGB
-    └── val
-        ├── S1GRD
-        │   ├── ssl4eos12_val_seasonal_data_000001.zarr.zip
-        │   ├── ssl4eos12_val_seasonal_data_000002.zarr.zip
-        │   ├── ...
-        │   └── ssl4eos12_val_seasonal_data_000034.zarr.zip
-        ├── S2L1C
-        ├── S2L2A
-        └── S2RGB
-```
-
-You can specify a subdirectory for downloading a subset of the data:
+If you like to download only a subset of the data, you can specify it with `--include`.
 ```shell
-# Download validation data
-wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/val/
-# Download S2L2A validation data
-wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/val/S2L2A/
-```
+# Only download val data
+hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --include "val/*" --local-dir data/SSL4EOS12
 
-If you like to access the raw tif files, you can download tar archives for each modality (~1TB per file) from [https://datapub.fz-juelich.de/ssl4eo-s12/raw/](https://datapub.fz-juelich.de/ssl4eo-s12/raw/).
-```shell
-# Download raw tif files in tar archives
-wget --recursive --no-parent --reject "index.html*" --execute robots=off -nH -P data https://datapub.fz-juelich.de/ssl4eo-s12/raw/
+# Only download a single modality (e.g., S2L2A)
+hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --include "*/S2L2A/*" --local-dir data/SSL4EOS12
 ```
 
 ## Usage
 
 We provide code for a PyTorch dataset in [ssl4eos12_dataset.py](ssl4eos12_dataset.py). You can initialize a data loader with the following code:
-```python
-from torch.utils.data import DataLoader
-from torchvision import transforms
-from ssl4eos12_dataset import SSL4EOS12Dataset, collate_fn, S2L1C_MEAN, S2L1C_STD, S2L2A_MEAN, S2L2A_STD, S1GRD_MEAN, S1GRD_STD
-
-# We concatenate the modalities for the transform function. Depending on the parameter concat=True/False, 
-# the data is returned as a concatenated tensor or split into the single modalities after the transform.
-train_transform = transforms.Compose([
-    transforms.RandomCrop(224),  # The data has size 264x264. We recommend RandomCrop for train and CenterCrop for val.
-    transforms.Normalize(mean=S2L1C_MEAN + S2L2A_MEAN + S1GRD_MEAN, std=S2L1C_STD + S2L2A_STD + S1GRD_STD)
-    # Data is loaded as torch Tensor, so no ToTensor() needed.
-])
-
-train_dataset = SSL4EOS12Dataset(
-    data_dir='data/ssl4eo-s12/train',
-    split_file='data/ssl4eo-s12/splits/ssl4eos12_train.txt',  # optional, speeds up the initialization.
-    modalities=['S2L1C', 'S2L2A', 'S1GRD'], # optional, list of modality folders.
-    transform=train_transform,  # optional, torchvision transforms. Returns tensors if not provided.
-    concat=False,  # Concatenate all modalities along the band dimension.
-    single_timestamp=False,  # Load single timestamps rather than time series.
-    num_batch_samples=64,  # optional, subsample samples in each zarr file.
-)
-
-train_loader  = DataLoader(
-    dataset=train_dataset,
-    batch_size=1,  # Note that each batch file contains already 64 samples!
-    shuffle=True,
-    collate_fn=collate_fn,  # Data needs to be concatenated along sample dimension instead of being stacked
-)
-```
-
-Alternatively, you can use the `GenericMultiModalDataModule` from [TerraTorch](https://github.com/IBM/terratorch) if you like to use TorchGeo or TerraTorch for your pre-training.
-We provide an example config here: [terratorch_ssl4eos12.yaml](terratorch_ssl4eos12.yaml).
 
 Standardization values:
 ```json
 {
   "S2L1C": {
-    "mean": [2607.345, 2393.068, 2320.225, 2373.963, 2562.536, 3110.071, 3392.832, 3321.154, 3583.77, 1838.712, 1021.753, 3205.112, 2545.798],
+    "mean": [1607.345, 1393.068, 1320.225, 1373.963, 1562.536, 2110.071, 2392.832, 2321.154, 2583.77,  838.712, 21.753, 2205.112, 1545.798],
     "std": [786.523, 849.702, 875.318, 1143.578, 1126.248, 1161.98, 1273.505, 1246.79, 1342.755, 576.795, 45.626, 1340.347, 1145.036]
   },
   "S2L2A": {
-    "mean": [1793.243, 1924.863, 2184.553, 2340.936, 2671.402, 3240.082, 3468.412, 3563.244, 3627.704, 3711.071, 3416.714, 2849.625],
+    "mean": [793.243, 924.863, 1184.553, 1340.936, 1671.402, 2240.082, 2468.412, 2563.244, 2627.704, 2711.071, 2416.714, 1849.625],
     "std": [1160.144, 1201.092, 1219.943, 1397.225, 1400.035, 1373.136, 1429.17, 1485.025, 1447.836, 1652.703, 1471.002, 1365.307]
   },
   "S2RGB": {
@@ -227,6 +73,15 @@ Standardization values:
 }
 ```
 
+[//]: # (TODO Add stats for other modalities.)
+
+### Zarr chunk file version
+
+We released a previous version of SSL4EO-S12 v1.1 using Zarr chunk files with 64 samples each. The version ist still available at [embed2scale/SSL4EO-S12-v1.1-Zarr](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
+We moved on to a webdataset version for better usability. 
+
+[zarr_dataset.py](zarr_dataset.py) provides data loading code for previous version and the chunk file version is directly compatible with [TerraTorch's](https://terrastackai.github.io/terratorch/stable/) `GenericMultiModalDataModule` which is showcased in the config [terratorch_zarr_ssl4eos12.yaml](terratorch_zarr_ssl4eos12.yaml). 
+
 ## License
 
 This repository is released under the Apache 2.0 license. The dataset is released under the CC-BY-4.0 license.
@@ -236,8 +91,8 @@ This repository is released under the Apache 2.0 license. The dataset is release
 If you use this dataset in your work, please cite:
 ```txt
 @article{blumenstiel2025ssl4eos12,
-  title={{SSL4EOS12 v1.1 – A Multimodal, Multiseasonal Dataset for Pretraining}},
-  author={Blumenstiel, Benedikt and Braham, Nassim Ait Ali and Albrecht, Conrad M and Maurogiovanni, Stefano and Fraccaro, Paolo},
+  title={{SSL4EO-S12} v1.1: A Multimodal, Multiseasonal Dataset for Pretraining, Updated},
+  author={Blumenstiel, Benedikt and Ait Ali Braham, Nassim and Albrecht, Conrad M and Maurogiovanni, Stefano and Fraccaro, Paolo},
   journal={arXiv preprint arXiv:2503.00168},
   year={2025}
 }
@@ -246,9 +101,13 @@ If you use this dataset in your work, please cite:
 This dataset is an updated version of:
 ```text
 @article{wang2022ssl4eo,
-  title={{SSL4EO-S12: A Large-Scale Multi-Modal, Multi-Temporal Dataset for Self-Supervised Learning in Earth Observation}},
-  author={Wang, Yi and Braham, Nassim Ait Ali and Xiong, Zhitong and Liu, Chenying and Albrecht, Conrad M and Zhu, Xiao Xiang},
-  journal={arXiv preprint arXiv:2211.07044},
-  year={2022}
+  title={{SSL4EO-S12}: A large-scale multimodal, multitemporal dataset for self-supervised learning in Earth observation [Software and Data Sets]},
+  author={Wang, Yi and Ait Ali Braham, Nassim and Xiong, Zhitong and Liu, Chenying and Albrecht, Conrad M and Zhu, Xiao Xiang},
+  journal={IEEE Geoscience and Remote Sensing Magazine},
+  volume={11},
+  number={3},
+  pages={98--106},
+  year={2023},
+  publisher={IEEE}
 }
 ```
