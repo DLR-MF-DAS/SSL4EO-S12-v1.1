@@ -9,7 +9,7 @@ Read more about the reasons behind our update and further improvements in our te
 ## NEWS
 
 - Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
-- Mar 11, 2025: SSL4EO-S12 v1.1 available on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
+- Mar 11, 2025: SSL4EO-S12 v1.1 available as a Zarr chunk file version on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
 - Mar 10, 2025: SSL4EO-S12 v1.1 utilized as pre-training dataset for [2025 CVPR EARTHVISION data challenge](https://www.grss-ieee.org/events/earthvision-2025/?tab=challenge):
     * details: [https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement](https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement)
     * tech support: [https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement/issues](https://github.com/DLR-MF-DAS/embed2scale-challenge-supplement/issues)
@@ -32,7 +32,7 @@ Modality examples in SSL4EO-S12 v1.1:
 
 You can also download the dataset from [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) to your local `data/` folder.
 
-You can download the dataset with the Hugging Face CLI tool. Please note that the full dataset requires 2.3TB of storage.
+You can download the dataset with the Hugging Face CLI tool (`pip install huggingface_hub`). Please note that the full dataset requires 2.3TB of storage.
 
 ```shell
 hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --local-dir data/SSL4EOS12
@@ -49,31 +49,135 @@ hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --include "*/S2L2A/*
 
 ## Usage
 
-We provide code for a PyTorch dataset in [ssl4eos12_dataset.py](ssl4eos12_dataset.py). You can initialize a data loader with the following code:
+Setup your env with 
+```shell
+pip install -r requirements.txt
 
-Standardization values:
-```json
-{
-  "S2L1C": {
-    "mean": [1607.345, 1393.068, 1320.225, 1373.963, 1562.536, 2110.071, 2392.832, 2321.154, 2583.77,  838.712, 21.753, 2205.112, 1545.798],
-    "std": [786.523, 849.702, 875.318, 1143.578, 1126.248, 1161.98, 1273.505, 1246.79, 1342.755, 576.795, 45.626, 1340.347, 1145.036]
-  },
-  "S2L2A": {
-    "mean": [793.243, 924.863, 1184.553, 1340.936, 1671.402, 2240.082, 2468.412, 2563.244, 2627.704, 2711.071, 2416.714, 1849.625],
-    "std": [1160.144, 1201.092, 1219.943, 1397.225, 1400.035, 1373.136, 1429.17, 1485.025, 1447.836, 1652.703, 1471.002, 1365.307]
-  },
-  "S2RGB": {
-    "mean": [100.708, 87.489, 61.932],
-    "std": [68.550, 47.647, 40.592]
-  },
-  "S1GRD": {
-    "mean": [-12.577, -20.265],
-    "std": [5.179, 5.872]
-  }
-}
+# or install the packages manually via
+pip install huggingface_hub webdataset zarr==2.18.0 numcodecs==0.15.1 torch numpy albumentations fsspec braceexpand 
 ```
 
-[//]: # (TODO Add stats for other modalities.)
+We provide code for a PyTorch dataloader in [ssl4eos12_dataset.py](ssl4eos12_dataset.py) which you can download with
+```shell
+wget https://raw.githubusercontent.com/DLR-MF-DAS/SSL4EO-S12-v1.1/refs/heads/main/ssl4eos12_dataset.py
+```
+
+You can use the `build_ssl4eos12_dataset` function to initialize a dataset, which uses the WebDataset package to load samples from the shard files. You can stream the data from Hugging Face using the urls or download the full dataset and pass a local path (e.g, `data/SSL4EOS12/`).
+```python
+from ssl4eos12_dataset import build_ssl4eos12_dataset
+from torch.utils.data import DataLoader
+
+# If you only pass one modality, the modality is loaded with the "image" key
+dataset = build_ssl4eos12_dataset(
+    path="https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/resolve/main/",  # Streaming or local path
+    modalities=["S2L2A"], 
+    split="val",
+    batch_size=8
+)
+# Batch keys: ["__key__", "__url__", "image"]
+
+# If you pass multiple modalities, the modalities are returned using the modality names as keys
+dataset = build_ssl4eos12_dataset(
+    path="https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/resolve/main/",  # Streaming or local path
+    modalities=["S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"], 
+    split="val",
+    batch_size=8,    
+)
+
+# Set batch size to None because batching is handled by WebDataset.
+dataloader = DataLoader(dataset, batch_size=None, num_workers=4, persistent_workers=True, prefetch_factor=1)
+
+# Iterate over the dataloader
+for batch in dataloader:
+    print("Batch keys:", list(batch.keys()))
+    # Batch keys: ["__key__", "__url__", "S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"]
+
+    print("Data shape:", batch["S2L2A"].shape)
+    # Data shape: torch.Size([8, 4, 12, 264, 264]
+    # Dimensions [batch, time, channel, h, w]
+    break
+```
+
+The data in SSL4EO-S12 v1.1 is sorted by date, meaning that each timestep can be from any season. 
+If you like to load the data as season, pass `reindex_seasonal=True` to `build_ssl4eos12_dataset()` and the loaded data is sorted by season while ignoring the year. 
+I.e., the first timestamp is from the first yearly quartal, followed by the second and so on.  
+
+### Data transform
+
+We provide some additional code for wrapping `albumentations` transform functions.
+We recommend albumentations because parameters are shared between all image modalities (e.g., same random crop). 
+However, it requires some code wrapping to bring the data into the expected shape.  
+
+```python
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+from ssl4eos12_dataset import (build_ssl4eos12_dataset, Transpose, MultimodalTransforms, MultimodalNormalize, 
+                               FlattenTemporalIntoChannels, UnflattenTemporalFromChannels, statistics)
+
+# Define all image modalities
+modalities = ["S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"]
+
+# Define multimodal transform function that converts the data into the expected shape from albumentations
+val_transform = MultimodalTransforms(
+    transforms=A.Compose([  # We use albumentations because of the shared transform between image modalities
+        Transpose([0, 2, 3, 1]),  # Convert data to channel last (expected shape from albumentations)
+        MultimodalNormalize(mean=statistics["mean"], std=statistics["std"]),
+        # CenterCrop other transformations cannot handle temporal data. Needs to be applied after MultimodalNormalize
+        FlattenTemporalIntoChannels(),
+        A.CenterCrop(224, 224),  # Use center crop in val split
+        # A.RandomCrop(224, 224),  # Use random crop in train split
+        # A.D4(),  # Optionally, use random flipping and rotation for the train split
+        ToTensorV2(),  # Convert to tensor and back to channel first
+        UnflattenTemporalFromChannels(n_timesteps=4), # Add time dim back, apply after ToTensorV2()
+    ],
+        is_check_shapes=False,  # Not needed because of aligned data in TerraMesh
+        additional_targets={m: "image" for m in modalities}
+    ),
+    non_image_modalities=["__key__", "__url__"],  # Additional non-image keys
+)
+
+dataset = build_ssl4eos12_dataset(
+    path="https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/resolve/main/",
+    modalities=modalities,
+    split="val",
+    transform=val_transform,
+    batch_size=8,
+)
+```
+
+If you only use a single modality, you don't need to specify `additional_targets` but you need to change the normalization to:
+```
+`        MultimodalNormalize(
+            mean={"image": statistics["mean"]["<modality>"]},
+            std={"image": statistics["std"]["<modality>"]}
+        ),`
+```
+
+### Returning metadata
+
+You can pass `return_metadata=True` to `build_ssl4eos12_dataset()` to load center longitude and latitude, timestamps, and the S2 cloud mask as additional metadata.
+
+The resulting batch keys include: `["__key__", "__url__", "S2L2A", "S1GRD", ..., "center_lon", "center_lat", "cloud_mask", "time_S2L2A", "time_S1GRD", ...]`.
+
+If you are using the `cloud_mask`, update `additional_targets` in your `transform`:
+```python
+val_transform = MultimodalTransforms(
+    transforms=A.Compose([...],
+        additional_targets={m: "image" for m in modalities + ["cloud_mask"]}
+        # additional_targets={"cloud_mask": "image"}  # Setting for a single modality dataset 
+    ),
+)
+```
+
+Note that center points are not updated when random crop is used. 
+The cloud mask provides the classes land (0), water (1), snow (2), thin cloud (3), thick cloud (4), cloud shadow (5), and no data (6).
+DEM does not return a time value while LULC uses the S2 timestamp because of the augmentation using the S2 cloud and ice mask. Time values are returned as integer values but can be converted back to datetime with 
+```python
+batch["time_S2L2A"].numpy().astype("datetime64[ns]")
+```
+
+[//]: # (TODO Fix wrong ordering of S1 timesteps! See https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)
+[//]: # (TODO Fix S2RGB and NDVI timesteps)
 
 ### Zarr chunk file version
 
