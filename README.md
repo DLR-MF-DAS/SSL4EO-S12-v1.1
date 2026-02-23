@@ -8,6 +8,7 @@ Read more about the reasons behind our update and further improvements in our te
 
 ## NEWS
 
+- Feb 19, 2026: We fixed a temporal alignment issue in the Sentinel-1 GRD data which was not sorted by data (sse [issue](https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)). Thank you, [Thomas](https://github.com/thomas-gorman-ai) for finding the issue!
 - Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
 - Mar 11, 2025: SSL4EO-S12 v1.1 available as a Zarr chunk file version on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
 - Mar 10, 2025: SSL4EO-S12 v1.1 utilized as pre-training dataset for [2025 CVPR EARTHVISION data challenge](https://www.grss-ieee.org/events/earthvision-2025/?tab=challenge):
@@ -30,9 +31,7 @@ Modality examples in SSL4EO-S12 v1.1:
 
 ## Download
 
-You can also download the dataset from [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1) to your local `data/` folder.
-
-You can download the dataset with the Hugging Face CLI tool (`pip install huggingface_hub`). Please note that the full dataset requires 2.3TB of storage.
+You can download the dataset via the Hugging Face CLI (`pip install huggingface_hub`). Please note that the full dataset requires 2.3TB of storage.
 
 ```shell
 hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --local-dir data/SSL4EOS12
@@ -46,6 +45,8 @@ hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --include "val/*" --
 # Only download a single modality (e.g., S2L2A)
 hf download embed2scale/SSL4EO-S12-v1.1 --repo-type dataset --include "*/S2L2A/*" --local-dir data/SSL4EOS12
 ```
+
+For development, `webdataset` supports data streaming and does not need any local data.
 
 ## Usage
 
@@ -175,9 +176,6 @@ DEM does not return a time value while LULC uses the S2 timestamp because of the
 ```python
 batch["time_S2L2A"].numpy().astype("datetime64[ns]")
 ```
-
-[//]: # (TODO Fix wrong ordering of S1 timesteps! See https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)
-[//]: # (TODO Fix S2RGB and NDVI timesteps)
 
 ### Zarr chunk file version
 
