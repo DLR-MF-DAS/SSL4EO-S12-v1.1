@@ -64,6 +64,7 @@ def build_ssl4eos12_dataset(
         path: str = "https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/resolve/main/",
         modalities: list[str] | str = None,
         split: str = "val",
+        files: str | None = None,
         urls: str | None = None,
         transform: Callable = None,
         batch_size: int = 8,
@@ -82,6 +83,8 @@ def build_ssl4eos12_dataset(
     :param path: URL or local path to dataset root that with data structure ./{split}/{modality}/shard_{id}.tar
     :param modalities: List of modalities or a single modality name
     :param split: Split name ("train", "val"). Default to "val".
+    :param files: Files to use, defaults to ssl4eos12_shard_{000001..000477}.tar for train and
+        ssl4eos12_shard_{000001..000005}.tar for val.
     :param urls: Specify custom shard urls instead of providing the path, modalities, and split.
     :param batch_size: Specify batch size to load batches instead of samples via webdataset (Recommended).
         It requires batch_size=None in the data loader constructor.
@@ -113,6 +116,7 @@ def build_ssl4eos12_dataset(
             path=path,
             modality=modalities,
             split=split,
+            files=files,
             urls=urls,
             batch_size=batch_size,
             transform=transform,
@@ -135,6 +139,7 @@ def build_ssl4eos12_dataset(
             path=path,
             modalities=modalities,
             split=split,
+            files=files,
             urls=urls,
             batch_size=batch_size,
             transform=transform,
@@ -203,6 +208,7 @@ def build_wds_dataset(
         path: str = "https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/resolve/main/",
         modality: str = "S2L2A",
         split: str = "val",
+        files: str | None = None,
         urls: str | None = None,
         batch_size: int = 8,
         transform: Callable = None,
@@ -217,7 +223,7 @@ def build_wds_dataset(
 ):
     if urls is None:
         # Select split files
-        urls = os.path.join(path, split, modality, split_files[split])
+        urls = os.path.join(path, split, modality, files or split_files[split])
 
     if split == "val" and empty_check:
         # Setting empty_check to True to avoid errors because of few val shard files
@@ -261,6 +267,7 @@ def build_multimodal_dataset(
         modalities: list = None,
         split: str = "val",
         urls: str | None = None,
+        files: str | None = None,
         batch_size: int = 8,
         transform: Callable = None,
         return_metadata: bool = False,
@@ -274,7 +281,7 @@ def build_multimodal_dataset(
     if modalities is None:
         modalities = ["S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"]  # Default
     if urls is None:
-        urls = os.path.join(path, split, f"[{','.join(modalities)}]", split_files[split])
+        urls = os.path.join(path, split, f"[{','.join(modalities)}]", files or split_files[split])
 
     dataset = wds.DataPipeline(
         wds.ResampledShards(urls, deterministic=deterministic, seed=seed, empty_check=empty_check)
