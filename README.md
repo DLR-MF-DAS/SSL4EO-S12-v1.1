@@ -8,7 +8,7 @@ Read more about the reasons behind our update and further improvements in our te
 
 ## NEWS
 
-- Feb 19, 2026: We fixed a temporal alignment issue in the Sentinel-1 GRD data which was not sorted by data (sse [issue](https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)). Thank you, [Thomas](https://github.com/thomas-gorman-ai) for finding the issue!
+- Feb 19, 2026: We fixed a temporal alignment issue in the Sentinel-1 GRD data which was not sorted by date (see [issue](https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)). Thank you, [Thomas](https://github.com/thomas-gorman-ai), for reporting the issue!
 - Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
 - Mar 11, 2025: SSL4EO-S12 v1.1 available as a Zarr chunk file version on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
 - Mar 10, 2025: SSL4EO-S12 v1.1 utilized as pre-training dataset for [2025 CVPR EARTHVISION data challenge](https://www.grss-ieee.org/events/earthvision-2025/?tab=challenge):
@@ -50,7 +50,7 @@ For development, `webdataset` supports data streaming and does not need any loca
 
 ## Usage
 
-Setup your env with 
+Set up your env with 
 ```shell
 pip install -r requirements.txt
 
@@ -100,7 +100,7 @@ for batch in dataloader:
 ```
 
 The data in SSL4EO-S12 v1.1 is sorted by date, meaning that each timestep can be from any season. 
-If you like to load the data as season, pass `reindex_seasonal=True` to `build_ssl4eos12_dataset()` and the loaded data is sorted by season while ignoring the year. 
+If you like to load the data with fixed seasons, pass `reindex_seasonal=True` to `build_ssl4eos12_dataset()` and the loaded data is sorted by season while ignoring the year. 
 I.e., the first timestamp is from the first yearly quartal, followed by the second and so on.  
 
 ### Data transform
