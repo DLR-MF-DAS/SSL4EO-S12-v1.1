@@ -8,6 +8,7 @@ Read more about the reasons behind our update and further improvements in our te
 
 ## NEWS
 
+- Mar 6, 2026: We provided metadata files to better search the samples.
 - Feb 19, 2026: We fixed a temporal alignment issue in the Sentinel-1 GRD data which was not sorted by date (see [issue](https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)). Thank you, [Thomas](https://github.com/thomas-gorman-ai), for reporting the issue!
 - Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
 - Mar 11, 2025: SSL4EO-S12 v1.1 available as a Zarr chunk file version on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
@@ -175,6 +176,33 @@ The cloud mask provides the classes land (0), water (1), snow (2), thin cloud (3
 DEM does not return a time value while LULC uses the S2 timestamp because of the augmentation using the S2 cloud and ice mask. Time values are returned as integer values but can be converted back to datetime with 
 ```python
 batch["time_S2L2A"].numpy().astype("datetime64[ns]")
+```
+
+### Metadata
+
+We provide metadata Parquet files per split at [Hugging Face](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/tree/main) with the following columns:
+```text
+tar                                     ssl4eos12_shard_000001.tar
+zarr                  ssl4eos12_val_seasonal_data_0000001.zarr.zip
+sample_id                                                  0080717
+split                                                          val
+center_lon                                              125.637763
+center_lat                                               42.659342
+crs                                                          32651
+bounds                  [714870.0, 4725040.0, 717510.0, 4727680.0]
+geometry         POLYGON ((125.65334657340223 42.64709631345207...
+S2_time_0                                      2020-11-16 02:30:01
+S2_time_1                                      2021-03-04 02:36:09
+S2_time_2                                      2021-05-18 02:35:51
+S2_time_3                                      2021-08-08 02:25:49
+S1_time_0                                      2020-11-27 21:46:46
+S1_time_1                                      2021-02-26 21:38:39
+S1_time_2                                      2021-05-26 21:46:46
+S1_time_3                                      2021-08-30 21:46:51
+cloud_cover_0                                                  0.0
+cloud_cover_1                                                  0.0
+cloud_cover_2                                                  0.0
+cloud_cover_3                                               0.0011
 ```
 
 ### Zarr chunk file version
