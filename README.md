@@ -8,7 +8,7 @@ Read more about the reasons behind our update and further improvements in our te
 
 ## NEWS
 
-- Mar 6, 2026: We provided metadata files to better search the samples.
+- Mar 24, 2026: We provided metadata files to better search the samples.
 - Feb 19, 2026: We fixed a temporal alignment issue in the Sentinel-1 GRD data which was not sorted by date (see [issue](https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)). Thank you, [Thomas](https://github.com/thomas-gorman-ai), for reporting the issue!
 - Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
 - Mar 11, 2025: SSL4EO-S12 v1.1 available as a Zarr chunk file version on [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1-Zarr).
@@ -204,6 +204,8 @@ cloud_cover_1                                                  0.0
 cloud_cover_2                                                  0.0
 cloud_cover_3                                               0.0011
 ```
+
+The `sample_id` is similar to the v1 dataset. The `S2_time_{i}` are shared between S2L1C, S2L2A, S2RGB, and NDVI. LULC is augmented with the clouds and ice/snow at that timestamp.
 
 ### Zarr chunk file version
 
