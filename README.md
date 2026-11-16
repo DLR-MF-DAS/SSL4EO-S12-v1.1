@@ -8,6 +8,7 @@ Read more about the reasons behind our update and further improvements in our te
 
 ## NEWS
 
+- Nov 16, 2026: We added Sentinel-1 RTC (`S1RTC`) as a new modality, processed for the same acquisitions as S1GRD (see [Data](#data)).
 - Mar 24, 2026: We provided metadata files to better search the samples.
 - Feb 19, 2026: We fixed a temporal alignment issue in the Sentinel-1 GRD data which was not sorted by date (see [issue](https://github.com/DLR-MF-DAS/SSL4EO-S12-v1.1/issues/4)). Thank you, [Thomas](https://github.com/thomas-gorman-ai), for reporting the issue!
 - Feb 17, 2026: SSL4EO-S12 v1.1 is now available as a webdataset version for better usability at [HuggingFace](https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1).
@@ -19,8 +20,10 @@ Read more about the reasons behind our update and further improvements in our te
 
 ## Data
 
-The dataset includes 246,144 locations with four timestamps each from the modalities S2L1C, S2L2A, S1GRD, S2RGB, NDVI, LULC, and a single timestamp DEM.
+The dataset includes 246,144 locations with four timestamps each from the modalities S2L1C, S2L2A, S1GRD, S1RTC, S2RGB, NDVI, LULC, and a single timestamp DEM.
 We refer to our [technical report](https://arxiv.org/abs/2503.00168) for details.
+
+S1RTC (radiometrically terrain corrected, vv and vh in dB) is sourced from [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc) for the same acquisitions as S1GRD and shares its pixel grid. If an RTC product is missing or has more than 5% no-data, it is replaced by the closest usable acquisition within ±30 days. Small gaps are filled with the nearest valid pixel, and remaining gaps (e.g., open sea without RTC coverage) with the S1GRD values. The `time` and `file_id` of each S1RTC sample refer to the acquisition actually used.
 
 Sentinel-2 and Sentinel-1 time series examples with four seasonal images:
 
@@ -81,7 +84,7 @@ dataset = build_ssl4eos12_dataset(
 # If you pass multiple modalities, the modalities are returned using the modality names as keys
 dataset = build_ssl4eos12_dataset(
     path="https://huggingface.co/datasets/embed2scale/SSL4EO-S12-v1.1/resolve/main/",  # Streaming or local path
-    modalities=["S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"], 
+    modalities=["S2L2A", "S2L1C", "S2RGB", "S1GRD", "S1RTC", "DEM", "NDVI", "LULC"], 
     split="val",
     batch_size=8,    
 )
@@ -92,7 +95,7 @@ dataloader = DataLoader(dataset, batch_size=None, num_workers=4, persistent_work
 # Iterate over the dataloader
 for batch in dataloader:
     print("Batch keys:", list(batch.keys()))
-    # Batch keys: ["__key__", "__url__", "S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"]
+    # Batch keys: ["__key__", "__url__", "S2L2A", "S2L1C", "S2RGB", "S1GRD", "S1RTC", "DEM", "NDVI", "LULC"]
 
     print("Data shape:", batch["S2L2A"].shape)
     # Data shape: torch.Size([8, 4, 12, 264, 264]
@@ -117,7 +120,7 @@ from ssl4eos12_dataset import (build_ssl4eos12_dataset, Transpose, MultimodalTra
                                FlattenTemporalIntoChannels, UnflattenTemporalFromChannels, statistics)
 
 # Define all image modalities
-modalities = ["S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"]
+modalities = ["S2L2A", "S2L1C", "S2RGB", "S1GRD", "S1RTC", "DEM", "NDVI", "LULC"]
 
 # Define multimodal transform function that converts the data into the expected shape from albumentations
 val_transform = MultimodalTransforms(
@@ -205,7 +208,7 @@ cloud_cover_2                                                  0.0
 cloud_cover_3                                               0.0011
 ```
 
-The `sample_id` is similar to the v1 dataset. The `S2_time_{i}` are shared between S2L1C, S2L2A, S2RGB, and NDVI. LULC is augmented with the clouds and ice/snow at that timestamp.
+The `sample_id` is similar to the v1 dataset. The `S2_time_{i}` are shared between S2L1C, S2L2A, S2RGB, and NDVI. The `S1_time_{i}` refer to S1GRD; S1RTC can differ if a replacement acquisition was used. LULC is augmented with the clouds and ice/snow at that timestamp.
 
 ### Zarr chunk file version
 

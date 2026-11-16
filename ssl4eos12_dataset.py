@@ -46,6 +46,7 @@ statistics = {
         "S2L2A": [793.243, 924.863, 1184.553, 1340.936, 1671.402, 2240.082, 2468.412, 2563.244, 2627.704, 2711.071, 2416.714, 1849.625],
         "S2RGB": [100.708, 87.489, 61.932],
         "S1GRD": [-12.577, -20.265],
+        "S1RTC": [-11.19, -17.829],
         "NDVI": [0.327],
         "DEM": [435.726],
     },
@@ -54,6 +55,7 @@ statistics = {
         "S2L2A": [1160.144, 1201.092, 1219.943, 1397.225, 1400.035, 1373.136, 1429.17, 1485.025, 1447.836, 1652.703, 1471.002, 1365.307],
         "S2RGB": [68.550, 47.647, 40.592],
         "S1GRD": [5.179, 5.872],
+        "S1RTC": [4.56, 4.671],
         "NDVI": [0.322],
         "DEM": [560.326]
     }
@@ -279,7 +281,7 @@ def build_multimodal_dataset(
         partial: bool = False,
 ):
     if modalities is None:
-        modalities = ["S2L2A", "S2L1C", "S2RGB", "S1GRD", "DEM", "NDVI", "LULC"]  # Default
+        modalities = ["S2L2A", "S2L1C", "S2RGB", "S1GRD", "S1RTC", "DEM", "NDVI", "LULC"]  # Default
     if urls is None:
         urls = os.path.join(path, split, f"[{','.join(modalities)}]", files or split_files[split])
 
